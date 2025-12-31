@@ -166,6 +166,51 @@ canvas{position:absolute;top:0;left:0}
     from{transform:scale(1)}
     to{transform:scale(1.35)}
 }
+/* ============================= */
+/* 📱 MOBILE LANDSCAPE (iPhone 16 Pro Max) */
+/* ============================= */
+@media (max-height: 500px) and (orientation: landscape) {
+
+  #happy {
+    top: 2%;
+    font-size: 10vw;
+    letter-spacing: 6px;
+  }
+
+  #ny {
+    top: 18%;
+    font-size: 6vw;
+  }
+
+  #y2026 {
+    top: 38%;
+    font-size: 7vw;
+  }
+
+  #bx {
+    top: 60%;
+    font-size: 3.5vw;
+  }
+
+  #wish {
+    bottom: 6%;
+    font-size: 22px;
+    letter-spacing: 3px;
+  }
+
+  #wish::after {
+    font-size: 80px;
+  }
+
+  canvas {
+    transform: scale(0.95);
+    transform-origin: center;
+  }
+
+  #start {
+    font-size: 22px;
+  }
+}
 
 </style>
 </head>
@@ -331,51 +376,6 @@ if(bass > 190){
     setTimeout(()=>wish.classList.remove("drop"),300);
 }
 </script>
-
-</body>
-</html>
-/* ============================= */
-/* 📱 MOBILE LANDSCAPE (iPhone 16 Pro Max) */
-/* ============================= */
-@media (max-height: 500px) and (orientation: landscape) {
-
-  #happy {
-    top: 2%;
-    font-size: 10vw;
-    letter-spacing: 6px;
-  }
-
-  #ny {
-    top: 18%;
-    font-size: 6vw;
-  }
-
-  #y2026 {
-    top: 38%;
-    font-size: 7vw;
-  }
-
-  #bx {
-    top: 60%;
-    font-size: 3.5vw;
-  }
-
-  #wish {
-    bottom: 6%;
-    font-size: 22px;
-    letter-spacing: 3px;
-  }
-
-  #wish::after {
-    font-size: 80px;
-  }
-
-  canvas {
-    transform: scale(0.95);
-    transform-origin: center;
-  }
-
-  #start {
     font-size: 22px;
   }
 }
