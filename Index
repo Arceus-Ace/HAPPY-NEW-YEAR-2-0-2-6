@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Happy New Year 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    background:#000;
+    overflow:hidden;
+    font-family:Poppins,Arial,sans-serif;
+    transition:background 0.3s;
+}
+
+/* NEON TEXT */
+.neon{
+    position:absolute;
+    width:100%;
+    text-align:center;
+    color:#fff;
+    font-weight:900;
+    letter-spacing:10px;
+    text-shadow:0 0 20px #0ff,0 0 40px #f0f,0 0 60px #ff0;
+}
+
+#happy{top:2%;font-size:16vw}
+#ny{top:22%;font-size:8vw}
+#y2026{
+    top:45%;
+    font-size:8vw;
+    transition:transform 0.1s;
+}
+#bx{top:72%;font-size:4vw}
+
+#wish{
+    position:absolute;
+    bottom:9%;
+    width:100%;
+    text-align:center;
+    font-size:36px;
+    font-weight:800;
+    letter-spacing:6px;
+
+    color:#0ff;
+    background:transparent;
+
+    text-shadow:
+        0 0 10px #0ff,
+        0 0 25px #0ff,
+        0 0 45px #f0f,
+        0 0 70px #ff0;
+
+    animation:
+        wishNeon 3s infinite linear,
+        wishFloat 4s infinite ease-in-out;
+
+    z-index:20;
+}
+
+/* đổi màu neon */
+@keyframes wishNeon{
+    0%   { color:#0ff }
+    33%  { color:#f0f }
+    66%  { color:#ff0 }
+    100% { color:#0ff }
+}
+
+/* bay nhẹ */
+@keyframes wishFloat{
+    0%   { transform:translateY(0) }
+    50%  { transform:translateY(-10px) }
+    100% { transform:translateY(0) }
+}
+/* HEART */
+.heart{
+    position:fixed;
+    bottom:-10px;
+    animation:fly linear forwards;
+}
+@keyframes fly{
+    to{transform:translateY(-120vh);opacity:0}
+}
+
+/* START */
+#start{
+    position:fixed;
+    inset:0;
+    background:#000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:28px;
+    color:#fff;
+    cursor:pointer;
+    z-index:9999;
+    text-shadow:0 0 20px #0ff,0 0 40px #f0f;
+}
+
+canvas{position:absolute;top:0;left:0}
+/* ===== KARAOKE NEON WISH ===== */
+#wish{
+    position:absolute;
+    bottom:9%;
+    width:100%;
+    text-align:center;
+    font-size:36px;
+    font-weight:800;
+    letter-spacing:6px;
+    color:#0ff;
+    z-index:30;
+    animation: wishFloat 4s infinite ease-in-out;
+}
+
+/* từng ký tự */
+.wish-char{
+    display:inline-block;
+    opacity:0.25;
+    transform:scale(0.9);
+    transition:0.15s;
+}
+
+/* ký tự đang hát */
+.wish-char.active{
+    opacity:1;
+    transform:scale(1.15);
+    text-shadow:
+        0 0 12px currentColor,
+        0 0 25px currentColor,
+        0 0 45px #fff;
+}
+
+/* drop rung + zoom */
+#wish.drop{
+    animation:
+        shake 0.25s infinite,
+        zoom 0.35s ease-out;
+}
+
+/* viền tim neon */
+#wish::after{
+    content:"💖";
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    font-size:120px;
+    opacity:0.15;
+    filter:drop-shadow(0 0 25px currentColor);
+    pointer-events:none;
+}
+
+@keyframes wishFloat{
+    50%{transform:translateY(-10px)}
+}
+
+@keyframes shake{
+    0%{transform:translate(0,0)}
+    25%{transform:translate(3px,-2px)}
+    50%{transform:translate(-3px,2px)}
+    75%{transform:translate(2px,3px)}
+}
+
+@keyframes zoom{
+    from{transform:scale(1)}
+    to{transform:scale(1.35)}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="happy" class="neon">HAPPY</div>
+<div id="ny" class="neon">NEW&nbsp;YEAR</div>
+<div id="y2026" class="neon">2026</div>
+<div id="bx" class="neon">Bà xã IU</div>
+<div id="wish"></div>
+
+<canvas id="canvas"></canvas>
+
+<audio id="music" loop></audio>
+<div id="start">🎧 Tap / Click để bắt đầu</div>
+
+<script>
+/* ===== AUDIO ===== */
+const music=document.getElementById("music");
+const start=document.getElementById("start");
+const wish=document.getElementById("wish");
+const y2026=document.getElementById("y2026");
+
+let audioCtx, analyser, dataArray;
+
+/* ===== CANVAS ===== */
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+function resize(){
+    canvas.width=innerWidth;
+    canvas.height=innerHeight;
+}
+resize();
+addEventListener("resize",resize);
+
+/* ===== FIREWORK HEART ===== */
+const particles=[];
+const gravity=0.05;
+
+function color(){
+    return ["#0ff","#f0f","#ff0","#ff66cc"][Math.floor(Math.random()*4)];
+}
+
+function firework(x,y,heart=false){
+    for(let i=0;i<80;i++){
+        let a=Math.random()*Math.PI*2;
+        let s=Math.random()*5+2;
+        let vx=Math.cos(a)*s;
+        let vy=Math.sin(a)*s;
+        if(heart){
+            let t=a;
+            vx=16*Math.pow(Math.sin(t),3)*0.3;
+            vy=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))*0.3;
+        }
+        particles.push({x,y,vx,vy,a:1,c:color()});
+    }
+}
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach((p,i)=>{
+        p.x+=p.vx;
+        p.y+=p.vy;
+        p.vy+=gravity;
+        p.a-=0.015;
+        ctx.globalAlpha=p.a;
+        ctx.fillStyle=p.c;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,3,0,Math.PI*2);
+        ctx.fill();
+        if(p.a<=0)particles.splice(i,1);
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+}
+draw();
+
+/* ===== TEXT TYPE ===== */
+const texts=[
+ "✨ Năm 2026 đã đến, Chúc Bx thật nhiều ✨",
+ "💖 Sức khỏe 🌸 Yêu thương 🌸 Hạnh phúc 💖 ",
+ "🌈 Bình an 💫 Vui vẻ 💫 May mắn 🌈 ",
+ "🪄 Sự như ý ⚡ Thành công ⚡ Money 🪄 ",
+ "🔆 Mạnh mẽ hơn 🔆",
+ "🌙 Trưởng thành hơn 🌙",
+ "💥 Đẹp gái - Dễ thương hơn 💥",
+ "🎏 Và thật thật nhiều khoảng khắc đáng nhớ hơn 🎏",
+ "🥰 Tất nhiên không thể thiếu lời nói cuối rồi hì hì 🥰",
+ "🚀 Cảm ơn bx đã đồng hành cùng pa thêm 1 năm nữa nhá 🚀",
+ "🫶 Năm 2026 chúng ta cùng nhau cố gắng tiếp nhá 🫶",
+ "🌠 Cùng YÊU THƯƠNG - PHÁT TRIỂN - HẠNH PHÚC nhá 🌠",
+ "💘 YÊU THƯƠNG BÀ XÃ IU 💘",
+ "🎉 Happy New Year 2026 🎉"
+
+
+];
+let ti=0,ci=0,del=false;
+function type(){
+    const t=texts[ti];
+    if(!del){
+        wish.innerHTML=t.substring(0,ci++);
+        if(ci>t.length){del=true;setTimeout(type,1200);return;}
+    }else{
+        wish.innerHTML=t.substring(0,ci--);
+        if(ci<0){del=false;ci=0;ti=(ti+1)%texts.length;}
+    }
+    setTimeout(type,del?40:70);
+}
+type();
+
+/* ===== HEART FLY ===== */
+function flyHeart(){
+    const h=document.createElement("div");
+    h.className="heart";
+    h.textContent=["❤️","💖","💘","💕","💗"][Math.floor(Math.random()*5)];
+    h.style.left=Math.random()*100+"vw";
+    h.style.fontSize=Math.random()*20+18+"px";
+    h.style.animationDuration=Math.random()*3+3+"s";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),4000);
+}
+setInterval(flyHeart,250);
+
+/* ===== START MUSIC ===== */
+start.onclick=async()=>{
+    music.src="happy_new_year.mp3";
+    music.volume=1;
+    await music.play();
+
+    audioCtx=new AudioContext();
+    const src=audioCtx.createMediaElementSource(music);
+    analyser=audioCtx.createAnalyser();
+    analyser.fftSize=256;
+    dataArray=new Uint8Array(analyser.frequencyBinCount);
+    src.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    start.remove();
+    beat();
+};
+
+/* ===== BEAT EFFECT ===== */
+function beat(){
+    analyser.getByteFrequencyData(dataArray);
+    let bass=dataArray.slice(1,6).reduce((a,b)=>a+b,0);
+    let glow=bass/5;
+
+    wish.style.textShadow=`0 0 ${20+glow}px #0ff,0 0 ${40+glow}px #f0f,0 0 ${80+glow}px #ff0`;
+
+    y2026.style.transform=`scale(${1+bass/600})`;
+
+    document.body.style.background=`hsl(${bass*2},80%,5%)`;
+
+    if(bass>200){
+        firework(Math.random()*canvas.width,Math.random()*canvas.height*0.4,true);
+    }
+    requestAnimationFrame(beat);
+}
+// 💥 DROP EFFECT
+if(bass > 190){
+    wish.classList.add("drop");
+    setTimeout(()=>wish.classList.remove("drop"),300);
+}
+</script>
+
+</body>
+</html>
